@@ -1,0 +1,49 @@
+// Opt-in server checks live outside the published mod and use a dedicated development world.
+if (providers.gradleProperty('qio_smoke_test').getOrElse('false').toBoolean()) {
+    sourceSets {
+        smoke {
+            compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
+            runtimeClasspath += sourceSets.main.runtimeClasspath
+        }
+    }
+    configurations.smokeAnnotationProcessor.extendsFrom configurations.annotationProcessor
+    def reload = providers.gradleProperty('qio_smoke_reload').getOrElse('false')
+    def integration = providers.gradleProperty('qio_smoke_integration').getOrElse('as')
+    if (!(integration in ['as', 'will', 'lp'])) {
+        throw new GradleException('Unknown QIO smoke integration: ' + integration)
+    }
+    def checkName = propertyBool('enable_optional_mod_runtime') ? integration : 'no-providers'
+    if (reload == 'true') {
+        checkName += '-reload'
+    }
+    tasks.matching { it.name in ['runServer', 'runClient'] }.configureEach {
+        def reportName = name == 'runClient' ? "${checkName}-client" : checkName
+        def resultFile = layout.buildDirectory.file("reports/qio-smoke/${reportName}.txt").get().asFile
+        dependsOn tasks.named('smokeClasses')
+        classpath += sourceSets.smoke.output
+        if (name == 'runServer') {
+            args '--world', propertyBool('enable_optional_mod_runtime') ? "qio-smoke-${integration}" : 'qio-smoke-no-providers'
+            args '--port', '0'
+        }
+        systemProperty 'mekceuqiostorage.smoke.result', resultFile.absolutePath
+        systemProperty 'mekceuqiostorage.smoke.reload', reload
+        systemProperty 'mekceuqiostorage.smoke.integration', integration
+        doFirst {
+            resultFile.parentFile.mkdirs()
+            if (resultFile.exists()) {
+                resultFile.delete()
+            }
+        }
+        doLast {
+            copy {
+                from 'run/logs/latest.log'
+                into resultFile.parentFile
+                rename { "${reportName}.log" }
+            }
+            if (!resultFile.isFile() || !resultFile.text.startsWith('PASS')) {
+                throw new GradleException('QIO smoke check failed: ' +
+                        (resultFile.isFile() ? resultFile.text : 'no result was written'))
+            }
+        }
+    }
+}

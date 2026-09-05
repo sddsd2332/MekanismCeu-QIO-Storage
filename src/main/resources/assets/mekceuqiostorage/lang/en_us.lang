@@ -1,0 +1,69 @@
+item.qio_drive_base_thaumcraft_essentia.name=Essentia QIO Drive
+item.qio_drive_hyper_dense_thaumcraft_essentia.name=Hyper-Dense Essentia QIO Drive
+item.qio_drive_time_dilating_thaumcraft_essentia.name=Time-Dilating Essentia QIO Drive
+item.qio_drive_supermassive_thaumcraft_essentia.name=Supermassive Essentia QIO Drive
+item.qio_drive_base_botania_mana.name=Mana QIO Drive
+item.qio_drive_hyper_dense_botania_mana.name=Hyper-Dense Mana QIO Drive
+item.qio_drive_time_dilating_botania_mana.name=Time-Dilating Mana QIO Drive
+item.qio_drive_supermassive_botania_mana.name=Supermassive Mana QIO Drive
+item.qio_drive_base_bloodmagic_lp.name=LP QIO Drive
+item.qio_drive_hyper_dense_bloodmagic_lp.name=Hyper-Dense LP QIO Drive
+item.qio_drive_time_dilating_bloodmagic_lp.name=Time-Dilating LP QIO Drive
+item.qio_drive_supermassive_bloodmagic_lp.name=Supermassive LP QIO Drive
+item.qio_drive_base_bloodmagic_will.name=Will QIO Drive
+item.qio_drive_hyper_dense_bloodmagic_will.name=Hyper-Dense Will QIO Drive
+item.qio_drive_time_dilating_bloodmagic_will.name=Time-Dilating Will QIO Drive
+item.qio_drive_supermassive_bloodmagic_will.name=Supermassive Will QIO Drive
+item.qio_drive_base_astralsorcery_starlight.name=Starlight QIO Drive
+item.qio_drive_hyper_dense_astralsorcery_starlight.name=Hyper-Dense Starlight QIO Drive
+item.qio_drive_time_dilating_astralsorcery_starlight.name=Time-Dilating Starlight QIO Drive
+item.qio_drive_supermassive_astralsorcery_starlight.name=Supermassive Starlight QIO Drive
+item.qio_drive_base_embers_ember.name=Ember QIO Drive
+item.qio_drive_hyper_dense_embers_ember.name=Hyper-Dense Ember QIO Drive
+item.qio_drive_time_dilating_embers_ember.name=Time-Dilating Ember QIO Drive
+item.qio_drive_supermassive_embers_ember.name=Supermassive Ember QIO Drive
+item.qio_drive_base_naturesaura_aura.name=Aura QIO Drive
+item.qio_drive_hyper_dense_naturesaura_aura.name=Hyper-Dense Aura QIO Drive
+item.qio_drive_time_dilating_naturesaura_aura.name=Time-Dilating Aura QIO Drive
+item.qio_drive_supermassive_naturesaura_aura.name=Supermassive Aura QIO Drive
+item.qio_drive_base_pneumaticcraft_air.name=Compressed Air QIO Drive
+item.qio_drive_hyper_dense_pneumaticcraft_air.name=Hyper-Dense Compressed Air QIO Drive
+item.qio_drive_time_dilating_pneumaticcraft_air.name=Time-Dilating Compressed Air QIO Drive
+item.qio_drive_supermassive_pneumaticcraft_air.name=Supermassive Compressed Air QIO Drive
+
+qio.mekceuqiostorage.drive_specialization.thaumcraft_essentia=Essentia
+qio.mekceuqiostorage.drive_specialization.botania_mana=Mana
+qio.mekceuqiostorage.drive_specialization.bloodmagic_lp=LP
+qio.mekceuqiostorage.drive_specialization.bloodmagic_will=Will
+qio.mekceuqiostorage.drive_specialization.astralsorcery_starlight=Starlight
+qio.mekceuqiostorage.drive_specialization.embers_ember=Ember
+qio.mekceuqiostorage.drive_specialization.naturesaura_aura=Aura
+qio.mekceuqiostorage.drive_specialization.pneumaticcraft_air=Compressed Air
+
+qio.mekceuqiostorage.resource.botania_mana=Mana
+qio.mekceuqiostorage.resource.bloodmagic_lp=LP - %s
+qio.mekceuqiostorage.resource.bloodmagic_will.default=Raw Will
+qio.mekceuqiostorage.resource.bloodmagic_will.corrosive=Corrosive Will
+qio.mekceuqiostorage.resource.bloodmagic_will.destructive=Destructive Will
+qio.mekceuqiostorage.resource.bloodmagic_will.vengeful=Vengeful Will
+qio.mekceuqiostorage.resource.bloodmagic_will.steadfast=Steadfast Will
+qio.mekceuqiostorage.resource.astralsorcery_starlight=Starlight
+qio.mekceuqiostorage.resource.embers_ember=Ember
+qio.mekceuqiostorage.resource.naturesaura_aura=Aura
+qio.mekceuqiostorage.resource.pneumaticcraft_air=Compressed Air
+qio.mekceuqiostorage.source.thaumcraft=Thaumcraft
+qio.mekceuqiostorage.source.botania=Botania
+qio.mekceuqiostorage.source.bloodmagic=Blood Magic
+qio.mekceuqiostorage.source.astralsorcery=Astral Sorcery
+qio.mekceuqiostorage.source.embers=Embers
+qio.mekceuqiostorage.source.naturesaura=Nature's Aura
+qio.mekceuqiostorage.source.pneumaticcraft=PneumaticCraft
+qio.mekceuqiostorage.tooltip.source=Source: %s
+qio.mekceuqiostorage.tooltip.unit.thaumcraft_essentia=1 unit = 1 essentia
+qio.mekceuqiostorage.tooltip.unit.botania_mana=1 unit = 1 Mana
+qio.mekceuqiostorage.tooltip.unit.bloodmagic_lp=1 unit = 1 Soul Network LP
+qio.mekceuqiostorage.tooltip.unit.bloodmagic_will=1 unit = 1 Will
+qio.mekceuqiostorage.tooltip.unit.astralsorcery_starlight=1 unit = 1 altar Starlight point
+qio.mekceuqiostorage.tooltip.unit.embers_ember=1 unit = 1 Ember
+qio.mekceuqiostorage.tooltip.unit.naturesaura_aura=1 unit = 1 Aura
+qio.mekceuqiostorage.tooltip.unit.pneumaticcraft_air=1 unit = 1 air; pressure = air / volume

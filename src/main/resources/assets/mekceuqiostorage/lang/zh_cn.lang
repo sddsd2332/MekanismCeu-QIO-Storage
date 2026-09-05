@@ -1,0 +1,69 @@
+item.qio_drive_base_thaumcraft_essentia.name=源质 QIO 驱动器
+item.qio_drive_hyper_dense_thaumcraft_essentia.name=超密集源质 QIO 驱动器
+item.qio_drive_time_dilating_thaumcraft_essentia.name=时间膨胀源质 QIO 驱动器
+item.qio_drive_supermassive_thaumcraft_essentia.name=超质量源质 QIO 驱动器
+item.qio_drive_base_botania_mana.name=魔力 QIO 驱动器
+item.qio_drive_hyper_dense_botania_mana.name=超密集魔力 QIO 驱动器
+item.qio_drive_time_dilating_botania_mana.name=时间膨胀魔力 QIO 驱动器
+item.qio_drive_supermassive_botania_mana.name=超质量魔力 QIO 驱动器
+item.qio_drive_base_bloodmagic_lp.name=LP QIO 驱动器
+item.qio_drive_hyper_dense_bloodmagic_lp.name=超密集 LP QIO 驱动器
+item.qio_drive_time_dilating_bloodmagic_lp.name=时间膨胀 LP QIO 驱动器
+item.qio_drive_supermassive_bloodmagic_lp.name=超质量 LP QIO 驱动器
+item.qio_drive_base_bloodmagic_will.name=意志 QIO 驱动器
+item.qio_drive_hyper_dense_bloodmagic_will.name=超密集意志 QIO 驱动器
+item.qio_drive_time_dilating_bloodmagic_will.name=时间膨胀意志 QIO 驱动器
+item.qio_drive_supermassive_bloodmagic_will.name=超质量意志 QIO 驱动器
+item.qio_drive_base_astralsorcery_starlight.name=星能 QIO 驱动器
+item.qio_drive_hyper_dense_astralsorcery_starlight.name=超密集星能 QIO 驱动器
+item.qio_drive_time_dilating_astralsorcery_starlight.name=时间膨胀星能 QIO 驱动器
+item.qio_drive_supermassive_astralsorcery_starlight.name=超质量星能 QIO 驱动器
+item.qio_drive_base_embers_ember.name=灰烬能量 QIO 驱动器
+item.qio_drive_hyper_dense_embers_ember.name=超密集灰烬能量 QIO 驱动器
+item.qio_drive_time_dilating_embers_ember.name=时间膨胀灰烬能量 QIO 驱动器
+item.qio_drive_supermassive_embers_ember.name=超质量灰烬能量 QIO 驱动器
+item.qio_drive_base_naturesaura_aura.name=灵气 QIO 驱动器
+item.qio_drive_hyper_dense_naturesaura_aura.name=超密集灵气 QIO 驱动器
+item.qio_drive_time_dilating_naturesaura_aura.name=时间膨胀灵气 QIO 驱动器
+item.qio_drive_supermassive_naturesaura_aura.name=超质量灵气 QIO 驱动器
+item.qio_drive_base_pneumaticcraft_air.name=压缩空气 QIO 驱动器
+item.qio_drive_hyper_dense_pneumaticcraft_air.name=超密集压缩空气 QIO 驱动器
+item.qio_drive_time_dilating_pneumaticcraft_air.name=时间膨胀压缩空气 QIO 驱动器
+item.qio_drive_supermassive_pneumaticcraft_air.name=超质量压缩空气 QIO 驱动器
+
+qio.mekceuqiostorage.drive_specialization.thaumcraft_essentia=源质
+qio.mekceuqiostorage.drive_specialization.botania_mana=魔力
+qio.mekceuqiostorage.drive_specialization.bloodmagic_lp=LP
+qio.mekceuqiostorage.drive_specialization.bloodmagic_will=意志
+qio.mekceuqiostorage.drive_specialization.astralsorcery_starlight=星能
+qio.mekceuqiostorage.drive_specialization.embers_ember=灰烬能量
+qio.mekceuqiostorage.drive_specialization.naturesaura_aura=灵气
+qio.mekceuqiostorage.drive_specialization.pneumaticcraft_air=压缩空气
+
+qio.mekceuqiostorage.resource.botania_mana=魔力
+qio.mekceuqiostorage.resource.bloodmagic_lp=LP - %s
+qio.mekceuqiostorage.resource.bloodmagic_will.default=原生意志
+qio.mekceuqiostorage.resource.bloodmagic_will.corrosive=腐蚀意志
+qio.mekceuqiostorage.resource.bloodmagic_will.destructive=破坏意志
+qio.mekceuqiostorage.resource.bloodmagic_will.vengeful=复仇意志
+qio.mekceuqiostorage.resource.bloodmagic_will.steadfast=坚毅意志
+qio.mekceuqiostorage.resource.astralsorcery_starlight=星辉
+qio.mekceuqiostorage.resource.embers_ember=灰烬能量
+qio.mekceuqiostorage.resource.naturesaura_aura=灵气
+qio.mekceuqiostorage.resource.pneumaticcraft_air=压缩空气
+qio.mekceuqiostorage.source.thaumcraft=神秘时代
+qio.mekceuqiostorage.source.botania=植物魔法
+qio.mekceuqiostorage.source.bloodmagic=血魔法
+qio.mekceuqiostorage.source.astralsorcery=星辉魔法
+qio.mekceuqiostorage.source.embers=余烬
+qio.mekceuqiostorage.source.naturesaura=自然灵气
+qio.mekceuqiostorage.source.pneumaticcraft=气动工艺
+qio.mekceuqiostorage.tooltip.source=来源：%s
+qio.mekceuqiostorage.tooltip.unit.thaumcraft_essentia=1 单位 = 1 点源质
+qio.mekceuqiostorage.tooltip.unit.botania_mana=1 单位 = 1 点魔力
+qio.mekceuqiostorage.tooltip.unit.bloodmagic_lp=1 单位 = 1 点灵魂网络 LP
+qio.mekceuqiostorage.tooltip.unit.bloodmagic_will=1 单位 = 1 点意志
+qio.mekceuqiostorage.tooltip.unit.astralsorcery_starlight=1 单位 = 1 点祭坛星能
+qio.mekceuqiostorage.tooltip.unit.embers_ember=1 单位 = 1 点灰烬能量
+qio.mekceuqiostorage.tooltip.unit.naturesaura_aura=1 单位 = 1 点灵气
+qio.mekceuqiostorage.tooltip.unit.pneumaticcraft_air=1 单位 = 1 点空气；压力 = 空气量 / 容积
