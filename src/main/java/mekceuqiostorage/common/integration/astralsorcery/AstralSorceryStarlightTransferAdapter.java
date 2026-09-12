@@ -12,6 +12,7 @@ import mekanism.api.Action;
 import mekceuqiostorage.common.content.qio.QIOStorageResourceSpecs;
 import mekceuqiostorage.common.content.qio.QIOStorageResources;
 import mekceuqiostorage.common.integration.transfer.AbstractSingleResourceTransferAdapter;
+import mekceuqiostorage.common.integration.transfer.NativeTransferAccounting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
@@ -70,8 +71,9 @@ public final class AstralSorceryStarlightTransferAdapter
         if (endpoint == null || !target.getPos().equals(endpoint.getLocationPos())) {
             return 0;
         }
-        endpoint.onStarlightReceive(target.getWorld(), true, getConstellation(target),
-              AstralSorceryStarlightMath.toNetworkAmount(amount));
+        IWeakConstellation constellation = getConstellation(target);
+        NativeTransferAccounting.delivered(amount, () -> endpoint.onStarlightReceive(target.getWorld(), true,
+              constellation, AstralSorceryStarlightMath.toNetworkAmount(amount)));
         markDirtySafely(target);
         // The void callback may discard light at capacity or while inactive. This still counts
         // as emission; only failure to invoke the endpoint leaves the QIO transfer incomplete.

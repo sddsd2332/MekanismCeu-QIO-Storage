@@ -5,6 +5,7 @@ import mekceuqiostorage.common.content.qio.QIOStorageResourceSpecs;
 import mekceuqiostorage.common.content.qio.QIOStorageResources;
 import mekceuqiostorage.common.integration.transfer.AbstractSingleResourceTransferAdapter;
 import mekceuqiostorage.common.integration.transfer.QIOStorageTransferMath;
+import mekceuqiostorage.common.integration.transfer.NativeTransferAccounting;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
@@ -91,28 +92,8 @@ public final class BotaniaManaTransferAdapter
         if (action.simulate()) {
             return requested;
         }
-        try {
-            pool.recieveMana(-requested);
-        } catch (LinkageError | RuntimeException ignored) {
-            restoreAfterFailedTransfer(pool, before);
-            return 0;
-        }
-        Integer afterValue = readCurrentMana(pool);
-        if (afterValue == null) {
-            compensate(pool, requested);
-            return 0;
-        }
-        int after = afterValue;
-        long movedLong = QIOStorageTransferMath.decrease(before, after);
-        if (after > before) {
-            compensate(pool, -(after - before));
-            return 0;
-        }
-        if (movedLong > requested) {
-            compensate(pool, (int) Math.min(Integer.MAX_VALUE, movedLong - requested));
-            movedLong = requested;
-        }
-        int moved = (int) movedLong;
+        long moved = NativeTransferAccounting.observed(requested, false, pool::getCurrentMana,
+              () -> pool.recieveMana(-requested), change -> pool.recieveMana((int) change));
         if (moved > 0) {
             markDirtySafely(target);
         }
@@ -154,28 +135,8 @@ public final class BotaniaManaTransferAdapter
         if (action.simulate()) {
             return requested;
         }
-        try {
-            pool.recieveMana(requested);
-        } catch (LinkageError | RuntimeException ignored) {
-            restoreAfterFailedTransfer(pool, before);
-            return 0;
-        }
-        Integer afterValue = readCurrentMana(pool);
-        if (afterValue == null) {
-            compensate(pool, -requested);
-            return 0;
-        }
-        int after = afterValue;
-        long movedLong = QIOStorageTransferMath.increase(before, after);
-        if (after < before) {
-            compensate(pool, before - after);
-            return 0;
-        }
-        if (movedLong > requested) {
-            compensate(pool, (int) -Math.min(Integer.MAX_VALUE, movedLong - requested));
-            movedLong = requested;
-        }
-        int moved = (int) movedLong;
+        long moved = NativeTransferAccounting.observed(requested, true, pool::getCurrentMana,
+              () -> pool.recieveMana(requested), change -> pool.recieveMana((int) change));
         if (moved > 0) {
             markDirtySafely(target);
         }
@@ -278,28 +239,4 @@ public final class BotaniaManaTransferAdapter
         }
     }
 
-    private static void compensate(IManaPool pool, int amount) {
-        if (amount == 0) {
-            return;
-        }
-        try {
-            pool.recieveMana(amount);
-        } catch (LinkageError | RuntimeException ignored) {
-            // Best-effort compensation for a hostile or inconsistent provider.
-        }
-    }
-
-    /** Restores a visible balance when a void-returning provider throws after mutating it. */
-    private static void restoreAfterFailedTransfer(IManaPool pool, int before) {
-        Integer afterValue = readCurrentMana(pool);
-        if (afterValue == null) {
-            return;
-        }
-        int after = afterValue;
-        if (after > before) {
-            compensate(pool, -(after - before));
-        } else if (after < before) {
-            compensate(pool, before - after);
-        }
-    }
 }

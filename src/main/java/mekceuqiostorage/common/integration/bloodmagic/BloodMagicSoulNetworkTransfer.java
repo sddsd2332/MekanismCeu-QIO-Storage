@@ -4,6 +4,7 @@ import WayofTime.bloodmagic.core.data.SoulNetwork;
 import WayofTime.bloodmagic.core.data.SoulTicket;
 import mekanism.api.Action;
 import mekceuqiostorage.common.integration.transfer.QIOStorageTransferMath;
+import mekceuqiostorage.common.integration.transfer.NativeTransferAccounting;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -31,23 +32,8 @@ final class BloodMagicSoulNetworkTransfer {
         if (requested <= 0 || action.simulate()) {
             return requested;
         }
-        try {
-            network.syphon(ticketFactory.create(requested));
-        } catch (LinkageError | RuntimeException ignored) {
-            restore(network, before);
-            return 0;
-        }
-        Integer afterValue = readCurrent(network);
-        if (afterValue == null || afterValue > before) {
-            restore(network, before);
-            return 0;
-        }
-        long moved = QIOStorageTransferMath.decrease(before, afterValue);
-        if (moved > requested) {
-            restore(network, before - requested);
-            return requested;
-        }
-        return moved;
+        return NativeTransferAccounting.observed(requested, false, network::getCurrentEssence,
+              () -> network.syphon(ticketFactory.create(requested)), change -> compensate(network, change));
     }
 
     static long insert(@Nullable SoulNetwork network, long amount, int maximum, int transferLimit,
@@ -62,23 +48,8 @@ final class BloodMagicSoulNetworkTransfer {
         if (requested <= 0 || action.simulate()) {
             return requested;
         }
-        try {
-            network.add(ticketFactory.create(requested), maximum);
-        } catch (LinkageError | RuntimeException ignored) {
-            restore(network, before);
-            return 0;
-        }
-        Integer afterValue = readCurrent(network);
-        if (afterValue == null || afterValue < before) {
-            restore(network, before);
-            return 0;
-        }
-        long moved = QIOStorageTransferMath.increase(before, afterValue);
-        if (moved > requested) {
-            restore(network, before + requested);
-            return requested;
-        }
-        return moved;
+        return NativeTransferAccounting.observed(requested, true, network::getCurrentEssence,
+              () -> network.add(ticketFactory.create(requested), maximum), change -> compensate(network, change));
     }
 
     @Nullable
@@ -94,12 +65,9 @@ final class BloodMagicSoulNetworkTransfer {
         }
     }
 
-    private static void restore(SoulNetwork network, int amount) {
-        try {
-            network.setCurrentEssence(Math.max(0, amount));
-        } catch (LinkageError | RuntimeException ignored) {
-            // Best-effort restoration after a provider event mutates an operation unexpectedly.
-        }
+    private static void compensate(SoulNetwork network, double change) {
+        if (change > 0) network.add(new SoulTicket((int) change), Integer.MAX_VALUE);
+        else if (change < 0) network.syphon(new SoulTicket((int) -change));
     }
 
     interface TicketFactory {

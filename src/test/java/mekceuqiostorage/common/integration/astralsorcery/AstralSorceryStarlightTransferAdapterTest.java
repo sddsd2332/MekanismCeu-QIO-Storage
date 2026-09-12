@@ -195,7 +195,7 @@ class AstralSorceryStarlightTransferAdapterTest {
     }
 
     @Test
-    void missingWrongPositionOrThrowingEndpointsDoNotReportACompletedCall() {
+    void missingEndpointsRefuseAndThrowingEndpointsReserveAnUnknownOutcome() {
         TestReceiver target = attach(new TestReceiver());
         target.fallback = null;
         assertEquals(0, insert(target, 200, Action.EXECUTE));
@@ -209,6 +209,9 @@ class AstralSorceryStarlightTransferAdapterTest {
                 throw new IllegalStateException("endpoint unavailable");
             }
         };
+        assertEquals(200, insert(target, 200, Action.EXECUTE));
+        assertTrue(mekceuqiostorage.common.integration.transfer.TransferRecovery.isBlocked(target));
+        assertFalse(mekceuqiostorage.common.integration.transfer.TransferRecovery.pending(target).getBoolean("known"));
         assertEquals(0, insert(target, 200, Action.EXECUTE));
     }
 

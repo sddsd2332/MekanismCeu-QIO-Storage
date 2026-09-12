@@ -9,6 +9,8 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
+import mekceuqiostorage.common.integration.transfer.TransferRecoveryCommand;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 /**
@@ -38,6 +40,11 @@ public class MekanismCeuQIOStorage {
         } else {
             QIOStorageBootstrap.initialize();
         }
+    }
+
+    @Mod.EventHandler
+    public void serverStarting(FMLServerStartingEvent event) {
+        event.registerServerCommand(new TransferRecoveryCommand());
     }
 
     @Mod.EventHandler

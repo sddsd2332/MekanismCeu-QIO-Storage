@@ -2,6 +2,7 @@ package mekceuqiostorage.common.integration.botania;
 
 import mekanism.api.Action;
 import mekceuqiostorage.common.integration.transfer.QIOStorageTransferMath;
+import mekceuqiostorage.common.integration.transfer.NativeTransferAccounting;
 import net.minecraft.tileentity.TileEntity;
 import vazkii.botania.api.mana.IManaCollector;
 import vazkii.botania.api.mana.IManaPool;
@@ -43,24 +44,18 @@ final class BotaniaManaReceiverEndpoint {
         if (requested <= 0 || action.simulate()) {
             return requested;
         }
-        try {
+        if (receiver instanceof IManaCollector || receiver instanceof ISparkAttachable) {
+            return NativeTransferAccounting.observed(requested, true, receiver::getCurrentMana,
+                  () -> receiver.recieveMana(requested), null);
+        }
+        // The base interface can represent a router or a consuming sink. Its balance cannot
+        // establish whether a throwing invocation forwarded a payload elsewhere.
+        return NativeTransferAccounting.reported(requested, true, null, () -> {
             receiver.recieveMana(requested);
-        } catch (LinkageError | RuntimeException ignored) {
-            return 0;
-        }
-        Integer afterValue = readCurrentMana(receiver);
-        if (afterValue == null) {
-            // The void method returned normally, so follow Botania's own burst-delivery contract
-            // when a receiver cannot expose a usable post-state.
-            return requested;
-        }
-        long retained = QIOStorageTransferMath.increase(before, afterValue);
-        if (retained > 0) {
-            return QIOStorageTransferMath.result(retained, requested);
-        }
-        // Routers, converters and sinks legitimately retain no balance (or may consume an older
-        // balance immediately). Native mana bursts treat a successful call as full delivery.
-        return requested;
+            Integer after = readCurrentMana(receiver);
+            long retained = after == null ? 0 : QIOStorageTransferMath.increase(before, after);
+            return retained > 0 ? QIOStorageTransferMath.result(retained, requested) : requested;
+        }, null);
     }
 
     private static long availableSpace(IManaReceiver receiver, int current) {

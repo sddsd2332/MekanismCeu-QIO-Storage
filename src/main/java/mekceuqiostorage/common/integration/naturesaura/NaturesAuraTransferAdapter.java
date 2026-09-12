@@ -8,6 +8,7 @@ import mekceuqiostorage.common.content.qio.QIOStorageResourceSpecs;
 import mekceuqiostorage.common.content.qio.QIOStorageResources;
 import mekceuqiostorage.common.integration.transfer.AbstractSingleResourceTransferAdapter;
 import mekceuqiostorage.common.integration.transfer.QIOStorageTransferMath;
+import mekceuqiostorage.common.integration.transfer.NativeTransferAccounting;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 
@@ -53,13 +54,9 @@ public final class NaturesAuraTransferAdapter
         if (requested <= 0) {
             return 0;
         }
-        int reported;
-        try {
-            reported = container.drainAura(requested, action.simulate());
-        } catch (LinkageError | RuntimeException ignored) {
-            return 0;
-        }
-        long moved = reportedUnits(reported, requested);
+        long moved = action.simulate() ? reportedUnits(container.drainAura(requested, true), requested) :
+              NativeTransferAccounting.reported(requested, false, container::getStoredAura,
+                    () -> container.drainAura(requested, false), change -> compensate(container, change));
         if (moved > 0 && action.execute()) {
             markDirtySafely(target);
         }
@@ -98,13 +95,9 @@ public final class NaturesAuraTransferAdapter
         if (requested <= 0) {
             return 0;
         }
-        int reported;
-        try {
-            reported = container.storeAura(requested, action.simulate());
-        } catch (LinkageError | RuntimeException ignored) {
-            return 0;
-        }
-        long moved = reportedUnits(reported, requested);
+        long moved = action.simulate() ? reportedUnits(container.storeAura(requested, true), requested) :
+              NativeTransferAccounting.reported(requested, true, container::getStoredAura,
+                    () -> container.storeAura(requested, false), change -> compensate(container, change));
         if (moved > 0 && action.execute()) {
             markDirtySafely(target);
         }
@@ -146,5 +139,10 @@ public final class NaturesAuraTransferAdapter
 
     private static long reportedUnits(int reported, long requested) {
         return QIOStorageTransferMath.result(reported, requested);
+    }
+
+    private static void compensate(IAuraContainer container, double change) {
+        if (change > 0) container.storeAura((int) change, false);
+        else if (change < 0) container.drainAura((int) -change, false);
     }
 }

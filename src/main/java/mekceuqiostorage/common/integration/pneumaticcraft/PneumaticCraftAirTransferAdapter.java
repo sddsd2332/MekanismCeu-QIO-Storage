@@ -7,6 +7,7 @@ import mekceuqiostorage.common.content.qio.QIOStorageResourceSpecs;
 import mekceuqiostorage.common.content.qio.QIOStorageResources;
 import mekceuqiostorage.common.integration.transfer.AbstractSingleResourceTransferAdapter;
 import mekceuqiostorage.common.integration.transfer.QIOStorageTransferMath;
+import mekceuqiostorage.common.integration.transfer.NativeTransferAccounting;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 
@@ -56,27 +57,8 @@ public final class PneumaticCraftAirTransferAdapter
         if (action.simulate()) {
             return requested;
         }
-        try {
-            handler.addAir(-requested);
-        } catch (LinkageError | RuntimeException ignored) {
-            return 0;
-        }
-        Integer afterValue = readAir(handler);
-        if (afterValue == null) {
-            compensate(handler, requested);
-            return 0;
-        }
-        int after = afterValue;
-        long movedLong = QIOStorageTransferMath.decrease(before, after);
-        if (after > before) {
-            compensate(handler, -(after - before));
-            return 0;
-        }
-        if (movedLong > requested) {
-            compensate(handler, (int) Math.min(Integer.MAX_VALUE, movedLong - requested));
-            movedLong = requested;
-        }
-        int moved = (int) movedLong;
+        long moved = NativeTransferAccounting.observed(requested, false, handler::getAir,
+              () -> handler.addAir(-requested), change -> handler.addAir((int) change));
         if (moved > 0) {
             markDirtySafely(target);
         }
@@ -107,27 +89,8 @@ public final class PneumaticCraftAirTransferAdapter
         if (action.simulate()) {
             return requested;
         }
-        try {
-            handler.addAir(requested);
-        } catch (LinkageError | RuntimeException ignored) {
-            return 0;
-        }
-        Integer afterValue = readAir(handler);
-        if (afterValue == null) {
-            compensate(handler, -requested);
-            return 0;
-        }
-        int after = afterValue;
-        long movedLong = QIOStorageTransferMath.increase(before, after);
-        if (after < before) {
-            compensate(handler, requested);
-            return 0;
-        }
-        if (movedLong > requested) {
-            compensate(handler, (int) -Math.min(Integer.MAX_VALUE, movedLong - requested));
-            movedLong = requested;
-        }
-        int moved = (int) movedLong;
+        long moved = NativeTransferAccounting.observed(requested, true, handler::getAir,
+              () -> handler.addAir(requested), change -> handler.addAir((int) change));
         if (moved > 0) {
             markDirtySafely(target);
         }
@@ -162,6 +125,8 @@ public final class PneumaticCraftAirTransferAdapter
     @Nullable
     private static IAirHandler getHandler(TileEntity target, EnumFacing targetFace) {
         try {
+            if (target == null || targetFace == null || target.isInvalid() ||
+                  target.getWorld() != null && target.getWorld().isRemote) return null;
             IPneumaticMachine machine = IPneumaticMachine.getMachine(target);
             return machine == null ? null : machine.getAirHandler(targetFace);
         } catch (LinkageError | RuntimeException ignored) {
@@ -181,14 +146,4 @@ public final class PneumaticCraftAirTransferAdapter
         }
     }
 
-    private static void compensate(IAirHandler handler, int amount) {
-        if (amount == 0) {
-            return;
-        }
-        try {
-            handler.addAir(amount);
-        } catch (LinkageError | RuntimeException ignored) {
-            // Best-effort recovery when a provider reports an inconsistent post-state.
-        }
-    }
 }

@@ -26,6 +26,21 @@ class BotaniaManaReceiverEndpointTest {
     }
 
     @Test
+    void receiverThrowingAfterPartialReceiptMustNotRefundAcceptedMana() {
+        TestCollector receiver = new TestCollector(80, 100) {
+            @Override
+            public void recieveMana(int mana) {
+                stored += 7;
+                throw new IllegalStateException("injected failure after receiving mana");
+            }
+        };
+        long moved = BotaniaManaTransferAdapter.INSTANCE.insert(receiver, EnumFacing.NORTH,
+              QIOStorageDescriptors.mana(), 20, Action.EXECUTE);
+        assertEquals(7, moved);
+        assertEquals(1080, 1000 - moved + receiver.stored);
+    }
+
+    @Test
     void genericBufferedReceiverIsWriteOnlyAndReportsItsObservedDelta() {
         TestReceiver receiver = new TestReceiver(80, 100);
         QIOResourceDescriptor mana = QIOStorageDescriptors.mana();
@@ -122,7 +137,7 @@ class BotaniaManaReceiverEndpointTest {
         }
     }
 
-    private static final class TestCollector extends TestReceiver implements IManaCollector {
+    private static class TestCollector extends TestReceiver implements IManaCollector {
 
         private TestCollector(int stored, int capacity) {
             super(stored, capacity);

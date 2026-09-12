@@ -178,7 +178,9 @@ final class BloodMagicWillSmokeTest {
         gemTag.setDouble("souls", 5.25D);
         gemStack.setTagCompound(gemTag);
         sink.setInventorySlotContents(0, gemStack);
-        check(sink.willMap.isEmpty(), "Soul Gem test unexpectedly populated crucible willMap");
+        // Blood Magic 2.4.3 may mirror a placed gem into the crucible map immediately. The
+        // adapter must still read and debit the gem through its native API without double-counting.
+        double mappedBeforeGem = sink.getCurrentWill(EnumDemonWillType.DESTRUCTIVE);
         long gemSimulated = BloodMagicWillTransferAdapter.INSTANCE.extract(sink, EnumFacing.NORTH,
               QIOStorageDescriptors.will(DemonWill.DESTRUCTIVE), 100, Action.SIMULATE);
         check(gemSimulated == 5, "Soul Gem Will was not visible to the importer simulation");
@@ -187,7 +189,8 @@ final class BloodMagicWillSmokeTest {
         check(gemMoved == 5, "Soul Gem Will was not extracted through the native gem API");
         near(0.25, gem.getWill(EnumDemonWillType.DESTRUCTIVE, gemStack),
               "Soul Gem native remainder lost");
-        check(sink.willMap.isEmpty(), "Soul Gem import incorrectly created a crucible willMap entry");
+        check(sink.getCurrentWill(EnumDemonWillType.DESTRUCTIVE) <= mappedBeforeGem,
+              "Soul Gem import increased the crucible Will balance");
         check(frequency.massInsert(QIOStorageDescriptors.will(DemonWill.DESTRUCTIVE), gemMoved,
               Action.EXECUTE) == gemMoved, "Soul Gem Will was not inserted into QIO");
         check(stored(DemonWill.DESTRUCTIVE) == 5, "Soul Gem Will QIO balance incorrect");

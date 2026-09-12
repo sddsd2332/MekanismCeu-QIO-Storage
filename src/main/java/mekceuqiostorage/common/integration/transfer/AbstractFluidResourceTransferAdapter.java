@@ -8,6 +8,7 @@ import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.minecraftforge.fluids.capability.IFluidTankProperties;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -70,13 +71,15 @@ public abstract class AbstractFluidResourceTransferAdapter<T>
         }
         try {
             Fluid fluid = Objects.requireNonNull(getNativeFluid(), "native fluid");
-            FluidStack drained = handler.drain(new FluidStack(fluid, requested), action.execute());
-            long moved = isExpectedFluid(drained, fluid) ?
-                  QIOStorageTransferMath.limit(drained.amount, requested) : 0;
+            long moved = action.simulate() ? drainedAmount(handler.drain(new FluidStack(fluid, requested), false), fluid) :
+                  NativeTransferAccounting.reported(requested, false, () -> balance(handler, fluid),
+                        () -> drainedAmount(handler.drain(new FluidStack(fluid, requested), true), fluid), null);
             if (moved > 0 && action.execute()) {
                 markDirtySafely(target);
             }
             return moved;
+        } catch (UncertainTransferException failure) {
+            throw failure;
         } catch (LinkageError | RuntimeException ignored) {
             return 0;
         }
@@ -94,13 +97,16 @@ public abstract class AbstractFluidResourceTransferAdapter<T>
             return 0;
         }
         try {
-            int moved = handler.fill(new FluidStack(
-                  Objects.requireNonNull(getNativeFluid(), "native fluid"), requested), action.execute());
-            moved = (int) QIOStorageTransferMath.limit(moved, requested);
+            Fluid fluid = Objects.requireNonNull(getNativeFluid(), "native fluid");
+            long moved = action.simulate() ? handler.fill(new FluidStack(fluid, requested), false) :
+                  NativeTransferAccounting.reported(requested, true, () -> balance(handler, fluid),
+                        () -> handler.fill(new FluidStack(fluid, requested), true), null);
             if (moved > 0 && action.execute()) {
                 markDirtySafely(target);
             }
             return moved;
+        } catch (UncertainTransferException failure) {
+            throw failure;
         } catch (LinkageError | RuntimeException ignored) {
             return 0;
         }
@@ -120,5 +126,24 @@ public abstract class AbstractFluidResourceTransferAdapter<T>
 
     private static boolean isExpectedFluid(@Nullable FluidStack stack, Fluid fluid) {
         return stack != null && stack.amount > 0 && stack.getFluid() == fluid;
+    }
+
+    private static long drainedAmount(FluidStack stack, Fluid fluid) {
+        return isExpectedFluid(stack, fluid) ? stack.amount : 0;
+    }
+
+    private static double balance(IFluidHandler handler, Fluid fluid) {
+        IFluidTankProperties[] tanks = handler.getTankProperties();
+        if (tanks == null || tanks.length == 0) return Double.NaN;
+        double total = 0;
+        for (IFluidTankProperties tank : tanks) {
+            if (tank == null) return Double.NaN;
+            FluidStack contents = tank.getContents();
+            if (contents != null && contents.getFluid() == fluid) {
+                if (contents.amount < 0) return Double.NaN;
+                total += contents.amount;
+            }
+        }
+        return total;
     }
 }

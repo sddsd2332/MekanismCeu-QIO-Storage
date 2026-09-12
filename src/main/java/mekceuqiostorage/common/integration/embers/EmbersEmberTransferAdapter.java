@@ -5,6 +5,7 @@ import mekceuqiostorage.common.content.qio.QIOStorageResourceSpecs;
 import mekceuqiostorage.common.content.qio.QIOStorageResources;
 import mekceuqiostorage.common.integration.transfer.AbstractSingleResourceTransferAdapter;
 import mekceuqiostorage.common.integration.transfer.QIOStorageTransferMath;
+import mekceuqiostorage.common.integration.transfer.NativeTransferAccounting;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import teamroots.embers.api.capabilities.EmbersCapabilities;
@@ -63,13 +64,10 @@ public final class EmbersEmberTransferAdapter
         if (requested <= 0) {
             return 0;
         }
-        double reported;
-        try {
-            reported = capability.removeAmount(nativeAmount(requested), action.execute());
-        } catch (LinkageError | RuntimeException ignored) {
-            return 0;
-        }
-        long moved = reportedUnits(reported, requested);
+        long moved = action.simulate() ? reportedUnits(capability.removeAmount(nativeAmount(requested), false), requested) :
+              NativeTransferAccounting.reported(requested, false, capability::getEmber,
+                    () -> reportedUnits(capability.removeAmount(nativeAmount(requested), true), requested),
+                    change -> compensate(capability, change));
         if (moved > 0 && action.execute()) {
             markDirtySafely(target);
         }
@@ -105,13 +103,10 @@ public final class EmbersEmberTransferAdapter
         if (requested <= 0) {
             return 0;
         }
-        double reported;
-        try {
-            reported = capability.addAmount(nativeAmount(requested), action.execute());
-        } catch (LinkageError | RuntimeException ignored) {
-            return 0;
-        }
-        long moved = reportedUnits(reported, requested);
+        long moved = action.simulate() ? reportedUnits(capability.addAmount(nativeAmount(requested), false), requested) :
+              NativeTransferAccounting.reported(requested, true, capability::getEmber,
+                    () -> reportedUnits(capability.addAmount(nativeAmount(requested), true), requested),
+                    change -> compensate(capability, change));
         if (moved > 0 && action.execute()) {
             markDirtySafely(target);
         }
@@ -150,5 +145,10 @@ public final class EmbersEmberTransferAdapter
         // A double represents every integer exactly through 2^53. Capping the native request at
         // that boundary avoids rounding an otherwise valid whole-unit QIO transfer.
         return (double) Math.min(amount, 9_007_199_254_740_991L);
+    }
+
+    private static void compensate(IEmberCapability capability, double change) {
+        if (change > 0) capability.addAmount(change, true);
+        else if (change < 0) capability.removeAmount(-change, true);
     }
 }

@@ -50,14 +50,17 @@ public abstract class AbstractQIOResourceTransferAdapter<T> implements QIOResour
         Objects.requireNonNull(action, "transfer action");
         long requested = QIOStorageTransferMath.limit(amount, Long.MAX_VALUE);
         T resource = resolve(descriptor);
-        if (requested <= 0 || resource == null || !safeSupports(target, targetFace)) {
+        if (requested <= 0 || resource == null || TransferRecovery.isBlocked(target) || !safeSupports(target, targetFace)) {
             return 0;
         }
         try {
             return QIOStorageTransferMath.result(
                   extractResolved(target, targetFace, resource, requested, action), requested);
-        } catch (LinkageError | RuntimeException ignored) {
-            return 0;
+        } catch (UncertainTransferException failure) {
+            return action.simulate() ? 0 : TransferRecovery.hold(target, targetFace, descriptor, requested, false, failure);
+        } catch (LinkageError | RuntimeException failure) {
+            return action.simulate() ? 0 : TransferRecovery.hold(target, targetFace, descriptor, requested, false,
+                  new UncertainTransferException(requested, null, null, null, failure));
         }
     }
 
@@ -67,14 +70,17 @@ public abstract class AbstractQIOResourceTransferAdapter<T> implements QIOResour
         Objects.requireNonNull(action, "transfer action");
         long requested = QIOStorageTransferMath.limit(amount, Long.MAX_VALUE);
         T resource = resolve(descriptor);
-        if (requested <= 0 || resource == null || !safeSupports(target, targetFace)) {
+        if (requested <= 0 || resource == null || TransferRecovery.isBlocked(target) || !safeSupports(target, targetFace)) {
             return 0;
         }
         try {
             return QIOStorageTransferMath.result(
                   insertResolved(target, targetFace, resource, requested, action), requested);
-        } catch (LinkageError | RuntimeException ignored) {
-            return 0;
+        } catch (UncertainTransferException failure) {
+            return action.simulate() ? 0 : TransferRecovery.hold(target, targetFace, descriptor, requested, true, failure);
+        } catch (LinkageError | RuntimeException failure) {
+            return action.simulate() ? 0 : TransferRecovery.hold(target, targetFace, descriptor, requested, true,
+                  new UncertainTransferException(requested, null, null, null, failure));
         }
     }
 

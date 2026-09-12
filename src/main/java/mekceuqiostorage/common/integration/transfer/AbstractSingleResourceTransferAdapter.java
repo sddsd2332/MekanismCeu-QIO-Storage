@@ -30,7 +30,7 @@ public abstract class AbstractSingleResourceTransferAdapter<T>
     @Nonnull
     public final List<QIOResourceStack> getExtractable(@Nonnull TileEntity target,
                                                        @Nonnull EnumFacing targetFace, int maximumTypes, long maximumAmount) {
-        if (maximumTypes <= 0 || maximumAmount <= 0) {
+        if (maximumTypes <= 0 || maximumAmount <= 0 || TransferRecovery.isBlocked(target)) {
             return Collections.emptyList();
         }
         try {

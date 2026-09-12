@@ -72,7 +72,7 @@ final class BloodMagicLPSmokeTest {
         if (tick == 0) {
             inspectPlayer();
             place(world, ARRAY, MekanismBlocks.QIO_DRIVE_ARRAY);
-            place(world, ALTAR, RegistrarBloodMagicBlocks.BLOOD_ALTAR);
+            place(world, ALTAR, RegistrarBloodMagicBlocks.ALTAR);
             place(world, ALTAR.west(), MekanismBlocks.QIO_IMPORTER);
             place(world, ALTAR.east(), MekanismBlocks.QIO_EXPORTER);
             array = (TileEntityQIODriveArray) world.getTileEntity(ARRAY);

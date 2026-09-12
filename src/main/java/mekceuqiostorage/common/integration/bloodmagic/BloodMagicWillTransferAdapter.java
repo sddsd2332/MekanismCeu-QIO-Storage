@@ -10,6 +10,7 @@ import mekceuqiostorage.common.content.qio.QIOStorageResourceSpecs;
 import mekceuqiostorage.common.content.qio.QIOStorageResources.DemonWill;
 import mekceuqiostorage.common.integration.transfer.AbstractQIOResourceTransferAdapter;
 import mekceuqiostorage.common.integration.transfer.QIOStorageTransferMath;
+import mekceuqiostorage.common.integration.transfer.NativeTransferAccounting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
@@ -86,8 +87,9 @@ public final class BloodMagicWillTransferAdapter extends AbstractQIOResourceTran
         if (requested <= 0 || action.simulate()) {
             return requested;
         }
-        long moved = reportedUnits(conduit.drainDemonWill(type,
-              BloodMagicWillMath.toWill(requested), true), requested);
+        long moved = NativeTransferAccounting.reported(requested, false, () -> conduit.getCurrentWill(type),
+              () -> reportedUnits(conduit.drainDemonWill(type, BloodMagicWillMath.toWill(requested), true), requested),
+              change -> compensate(conduit, type, change));
         if (moved > 0) {
             markDirtySafely(target);
         }
@@ -116,8 +118,10 @@ public final class BloodMagicWillTransferAdapter extends AbstractQIOResourceTran
         if (requested <= 0) {
             return 0;
         }
-        long reported = reportedUnits(gem.drainWill(type, inspected,
-              BloodMagicWillMath.toWill(requested), action.execute()), requested);
+        long reported = action.simulate() ? reportedUnits(gem.drainWill(type, inspected,
+              BloodMagicWillMath.toWill(requested), false), requested) :
+              NativeTransferAccounting.reported(requested, false, () -> gem.getWill(type, inspected),
+                    () -> reportedUnits(gem.drainWill(type, inspected, BloodMagicWillMath.toWill(requested), true), requested), null);
         if (reported > 0 && action.execute()) {
             markDirtySafely(target);
         }
@@ -139,8 +143,9 @@ public final class BloodMagicWillTransferAdapter extends AbstractQIOResourceTran
         }
         // DemonWillHolder.addWill(type, amount, max) reports the cap but adds the original
         // amount. Bounding EXECUTE with a fresh simulation also protects direct adapter callers.
-        long moved = reportedUnits(conduit.fillDemonWill(type,
-              BloodMagicWillMath.toWill(requested), true), requested);
+        long moved = NativeTransferAccounting.reported(requested, true, () -> conduit.getCurrentWill(type),
+              () -> reportedUnits(conduit.fillDemonWill(type, BloodMagicWillMath.toWill(requested), true), requested),
+              change -> compensate(conduit, type, change));
         if (moved > 0) {
             markDirtySafely(target);
         }
@@ -149,5 +154,10 @@ public final class BloodMagicWillTransferAdapter extends AbstractQIOResourceTran
 
     private static long reportedUnits(double will, long requested) {
         return QIOStorageTransferMath.result(BloodMagicWillMath.toQIOUnits(will), requested);
+    }
+
+    private static void compensate(IDemonWillConduit conduit, EnumDemonWillType type, double change) {
+        if (change > 0) conduit.fillDemonWill(type, change, true);
+        else if (change < 0) conduit.drainDemonWill(type, -change, true);
     }
 }
